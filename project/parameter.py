@@ -1,1 +1,17 @@
 ## this file store all the parameters used in this project
+
+import numpy as np
+
+## parameter about motion of vertual mice
+f_theta = 7.0  # theta osc. freq. [Hz]
+v_mice = 32.43567842  # [cm/s]
+l_route = 300.0  # circumference [cm]
+l_place_field = 30.0  # [cm]
+r = l_route / (2*np.pi)  # [cm]
+phi_PF_rad = l_place_field / r  # [rad]
+t_route = l_route / v_mice  # [s]
+w_mice = 2*np.pi / t_route  # angular velocity
+
+## parameter about place field
+s = 47.0  # phase-locking (param of circular Gaussian)
+std = 0.146  # std (param of Gaussian, defined in [0,2*np.pi])

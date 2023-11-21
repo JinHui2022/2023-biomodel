@@ -18,3 +18,4 @@ aba aba
 * plots.py：提供本项目所有作图有关的支持
 * parameter.py：存储本项目使用的可以泛化的参数
 * class.py：存储本项目使用的各种类
+* file_management：负责数据的存储和文件的读取

@@ -15,3 +15,11 @@ w_mice = 2*np.pi / t_route  # angular velocity
 ## parameter about place field
 s = 47.0  # phase-locking (param of circular Gaussian)
 std = 0.146  # std (param of Gaussian, defined in [0,2*np.pi])
+
+
+## parameter about the characteristic of neurons
+refra_period = 5e-3 ## [s] the average refractory period
+
+## parameter about neuron network
+n_PC=8000
+place_cell_ratio=0.5

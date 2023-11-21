@@ -5,6 +5,8 @@ import numpy as np
 import brainpy as bp
 from tqdm import tqdm
 from possion_simu import hom_poisson, inhom_poisson
+from parameter import *
+from file_management import save_place_field
 
 ## parameter
 outfield_rate = 0.1  # avg. firing rate outside place field [Hz]
@@ -35,15 +37,22 @@ def generate_spike_train(n_neurons, place_cell_ratio, ordered=True, seed=1234):
     place_fields={neuron_id:phi_starts[i] for i, neuron_id in enumerate(place_cells)}
 
     ## generate spike trains
-    spike_trains=[]
+    spike_trains=np.zeros((n_neurons,), dtype=np.object_)
     for neuron_id in tqdm(range(0, n_neurons)):
         if neuron_id in place_fields:
-            spike_train=inhom_poisson(infield_rate,t_max,place_fields[neuron_id])
+            spike_train=inhom_poisson(infield_rate,t_max,place_fields[neuron_id],seed=seed)
         else:
             spike_train=hom_poisson(outfield_rate,t_max,seed)
-        spike_trains.append(spike_train)
+        spike_trains[neuron_id]=spike_train
         seed+=1
-    spike_trains=np.array(spike_trains)
     
     return place_fields,spike_trains
-        
+
+place_fields,spike_trains=generate_spike_train(n_neurons=n_PC,place_cell_ratio=place_cell_ratio)
+
+file_place_fields="place_fields.txt"
+file_spiek_trains="spike_trains.npz"
+
+## save the result
+save_place_field(place_fields,file_place_fields)
+np.savez(file_spiek_trains,spike_trains)

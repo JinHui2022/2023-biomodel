@@ -39,6 +39,9 @@ def hom_poisson(lambda_, t_max, seed):
     """
     np.random.seed(seed)
     rnd_isis = -1.0 / lambda_ * np.log(np.random.rand(100))
+    for i in rnd_isis:
+        while i < refra_period:
+            i = -1.0 / lambda_ * np.log(np.random.rand())
     poisson_proc = np.cumsum(rnd_isis)
     return poisson_proc[np.where(poisson_proc <= t_max)]
     #event_times=[]
@@ -51,7 +54,7 @@ def hom_poisson(lambda_, t_max, seed):
     #    event_times.append(t)
     #return np.array(event_times)
 
-def inhom_poisson(lambda_, t_max, phi_start, seed, phase0=0.):
+def inhom_poisson(lambda_, t_max, phi_start, seed, phase0=0.0):
     """
     Generates a homogeneous Poisson process and converts it to inhomogeneous
     via keeping only a subset of spikes based on the (time and space dependent) rate of the place cell (see `evaluate_lambda_t()`)

@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib import cm
+from parameter import *
 config = {"axes.titlesize":"20", "axes.labelsize":"15", "axes.labelweight":"medium"}
 rcParams.update(config)
 
@@ -13,17 +14,16 @@ fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.
 if not os.path.exists(fig_dir):
     os.mkdir(fig_dir)
 
-def plot_tuning_curves(l_route, n_sample):
+def plot_tuning_curves(l_route, n_samples):
     """
-    :param l_route:路线总长(cm)
-    :param n_sample:位置细胞采样个数
+    Args:
+        l_route: 路线总长(cm)
+        n_samples: 采样次数
     """
-    l_place_field = 30.0
     phi_PF_rad = l_place_field/l_route * 2*np.pi
-    std = 0.146 
     x = np.arange(0, l_route, 0.1)
     x_rad = x/l_route * 2*np.pi
-    sample = l_route/n_sample
+    sample = l_route/n_samples
     fig = plt.figure()
     plt.axis([0, l_route, 0.0, 1.0])
     j = -l_place_field/2
@@ -36,6 +36,28 @@ def plot_tuning_curves(l_route, n_sample):
     plt.xlabel("Position(cm)")
     plt.ylabel(r"$\tau_{i}$(x)")
     fig.savefig(os.path.join(fig_dir, "Place Cell Tuning Curves.png"), dpi=200)
+    
+def plot_firing_rates(t_sample, n_samples):
+    """
+    Args:
+        t_sample: 采样时间(s)
+        n_samples: 采样次数
+    """
+    from poisson_simu import evaluate_lambda_t
+    x_sample = w_mice * t_sample
+    sample = x_sample/n_samples
+    t = np.arange(0, t_sample, 0.01)
+    fig = plt.figure()
+    plt.axis([0, t_sample, 0.0, 1.0])
+    j = 0
+    while j <= x_sample:
+        _lambda = evaluate_lambda_t(t, j, 0.0)
+        plt.plot(t, _lambda, color=cm.jet(j/x_sample))
+        j = j + sample
+    plt.title("Firing rates of place cells")
+    plt.xlabel("Time(s)")
+    plt.ylabel(r"$\lambda_{i}$(x)(Hz)")
+    fig.savefig(os.path.join(fig_dir, "Firing rates of place cells.png"), dpi=200)
 
 def plot_weight_matrix(weight_matrix, ax):
     return None

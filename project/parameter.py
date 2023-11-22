@@ -23,3 +23,5 @@ refra_period = 5e-3 ## [s] the average refractory period
 ## parameter about neuron network
 n_PC=8000
 place_cell_ratio=0.5
+connection_prob_PC=0.1
+w_init=1e-10 #S

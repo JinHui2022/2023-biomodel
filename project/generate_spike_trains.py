@@ -6,7 +6,7 @@ import brainpy as bp
 from tqdm import tqdm
 from poisson_simu import hom_poisson, inhom_poisson
 from parameter import *
-from file_management import save_place_field
+from file_management import save_place_field, generate_file_path
 
 ## parameter
 outfield_rate = 0.1  # avg. firing rate outside place field [Hz]
@@ -55,4 +55,4 @@ file_spike_trains="spike_trains.npz"
 
 ## save the result
 save_place_field(place_fields,file_place_fields)
-np.savez(file_spike_trains,spike_trains)
+np.savez(generate_file_path(file_spike_trains),spike_trains)

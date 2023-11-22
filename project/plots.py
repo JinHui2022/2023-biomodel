@@ -48,10 +48,10 @@ def plot_firing_rates(t_sample, n_samples):
     sample = x_sample/n_samples
     t = np.arange(0, t_sample, 0.01)
     fig = plt.figure()
-    plt.axis([0, t_sample, 0.0, 1.0])
+    plt.axis([0, t_sample, 0, 20])
     j = 0
     while j <= x_sample:
-        _lambda = evaluate_lambda_t(t, j, 0.0)
+        _lambda = 20 * evaluate_lambda_t(t, j, 0.0)
         plt.plot(t, _lambda, color=cm.jet(j/x_sample))
         j = j + sample
     plt.title("Firing rates of place cells")
@@ -67,3 +67,5 @@ def plot_raster(input, ax):
 
 def plot_spike_events(event_time, ax):
     return None
+
+plot_firing_rates(10, 15)

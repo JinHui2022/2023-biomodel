@@ -4,7 +4,7 @@
 import numpy as np
 import brainpy as bp
 from tqdm import tqdm
-from possion_simu import hom_poisson, inhom_poisson
+from poisson_simu import hom_poisson, inhom_poisson
 from parameter import *
 from file_management import save_place_field
 
@@ -51,8 +51,8 @@ def generate_spike_train(n_neurons, place_cell_ratio, ordered=True, seed=1234):
 place_fields,spike_trains=generate_spike_train(n_neurons=n_PC,place_cell_ratio=place_cell_ratio)
 
 file_place_fields="place_fields.txt"
-file_spiek_trains="spike_trains.npz"
+file_spike_trains="spike_trains.npz"
 
 ## save the result
 save_place_field(place_fields,file_place_fields)
-np.savez(file_spiek_trains,spike_trains)
+np.savez(file_spike_trains,spike_trains)

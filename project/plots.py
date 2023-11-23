@@ -59,6 +59,35 @@ def plot_firing_rates(t_sample, n_samples):
     plt.ylabel(r"$\lambda_{i}$(x)(Hz)")
     fig.savefig(os.path.join(fig_dir, "Firing rates of place cells.png"), dpi=200)
 
+def plot_STDP_rule(taup, taum, Ap, Am):
+    """
+    Saves plot of the STDP rule used for learning
+    exponential STDP: f(s) = A_p * exp(-s/tau_p) (if s > 0), where s=tpost_{spike}-tpre_{spike}
+    :param taup, taum: time constant of weight change
+    :param Ap, Am: max amplitude of weight change
+    """
+
+    delta_t = np.linspace(-150, 150, 1000)
+    delta_w = np.where(delta_t>0, Ap*np.exp(-delta_t/taup), Am*np.exp(delta_t/taum))
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(1, 1, 1)
+
+    plt.plot(delta_t, delta_w, color="black", label=r"STDP rule $\tau_{\pm}:%s ms, A_{+}:%s pA$" % (taup, Ap))
+    plt.legend(loc="upper right")
+    plt.xlabel("$\Delta t$ post-pre (ms)")
+    plt.ylabel("$\Delta w$ (nS)")
+    plt.xlim([-150, 150])
+    if Ap == Am:
+        plt.title("Symmetric STDP rule")
+        plt.ylim([-Ap*0.05, Ap*1.05])
+        fig.savefig(os.path.join(fig_dir, "Symmetric STDP rule.png"), dpi=200)
+    else:
+        plt.title("Asymmetric STDP rule")
+        plt.ylim([-Ap*1.05, Ap*1.05])
+        fig.savefig(os.path.join(fig_dir, "Asymmetrc STDP rule.png"), dpi=200)
+    
+
 def plot_weight_matrix(weight_matrix, ax):
     return None
 
@@ -67,5 +96,3 @@ def plot_raster(input, ax):
 
 def plot_spike_events(event_time, ax):
     return None
-
-plot_firing_rates(10, 15)

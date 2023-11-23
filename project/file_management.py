@@ -2,6 +2,7 @@
 ## and parse the data stored in certain file
 
 import numpy as np
+import pickle
 import os
 
 fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "result")
@@ -19,13 +20,16 @@ def save_place_field(dictionary,file_name):
             file.write(f"{key}: {value}\n")
     return None
 
+def save_spike_trains(spike_trains, file_name):
+    with open(file_name, 'wb') as file:
+        pickle.dump(spike_trains, file)
+    return None
+
 def read_place_field(file_path):
     return None
 
-def read_spike_train(file_path, allow_pickle):
-    ## numpy can take the task of saving spike trains
-    data = np.load(file_path, allow_pickle=allow_pickle)
-    arrays = {}
-    for key in data.keys():
-        arrays[key] = data[key]
-    return arrays
+def read_spike_train(file_path):
+    with open(file_path, "rb") as file:
+        # Load the data from the file
+        data = pickle.load(file)
+    return data

@@ -37,22 +37,22 @@ def hom_poisson(lambda_, t_max, seed):
     :param seed: seed for random number generation (see `_generate_exp_rand_numbers()`)
     :return: poisson_proc: np.array which represent a homogenos Poisson process
     """
-    np.random.seed(seed)
-    rnd_isis = -1.0 / lambda_ * np.log(np.random.rand(100))
-    for i in rnd_isis:
-        while i < refra_period:
-            i = -1.0 / lambda_ * np.log(np.random.rand())
-    poisson_proc = np.cumsum(rnd_isis)
-    return poisson_proc[np.where(poisson_proc <= t_max)]
-    #event_times=[]
-    #t=0
-    #while t<t_max:
-    #    np.random.seed(seed)
-    #    U=np.random.uniform(0,1)
-    #    t-=np.log(U)/lambda_
-    #    t+=refra_period
-    #    event_times.append(t)
-    #return np.array(event_times)
+    # np.random.seed(seed)
+    # rnd_isis = -1.0 / lambda_ * np.log(np.random.rand(100))
+    # for i in rnd_isis:
+    #     while i < refra_period:
+    #         i = -1.0 / lambda_ * np.log(np.random.rand())
+    # poisson_proc = np.cumsum(rnd_isis)
+    # return poisson_proc[np.where(poisson_proc <= t_max)]
+    event_times=[]
+    t=0
+    while t<t_max:
+       np.random.seed(seed)
+       U=np.random.uniform(0,1)
+       t-=np.log(U)/lambda_
+       t+=refra_period
+       event_times.append(t)
+    return np.array(event_times)
 
 def inhom_poisson(lambda_, t_max, phi_start, seed, phase0=0.0):
     """

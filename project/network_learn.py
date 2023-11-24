@@ -34,20 +34,20 @@ def load_spike_trains(file_path):
 def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     # STDP parameter
     if mode==0: ## asym
-        taup=stdp[taup][0]
-        taum=stdp[taum][0]
-        Ap=stdp[Ap][0]
-        Am=stdp[Am][0]
-        wmax=stdp[wmax][0]
-        scale_factor=stdp[scale_factor][0]
+        taup=stdp['taup'][0]
+        taum=stdp['taum'][0]
+        Ap=stdp['Ap'][0]
+        Am=stdp['Am'][0]
+        wmax=stdp['wmax'][0]
+        scale_factor=stdp['scale_factor'][0]
     elif mode==1:
-        taup=stdp[taup][1]
-        taum=stdp[taum][1]
-        Ap=stdp[Ap][1]
-        Am=stdp[Am][1]
-        wmax=stdp[wmax][1]
-        scale_factor=stdp[scale_factor][1]
-    w_init=stdp[w_init]
+        taup=stdp['taup'][1]
+        taum=stdp['taum'][1]
+        Ap=stdp['Ap'][1]
+        Am=stdp['Am'][1]
+        wmax=stdp['wmax'][1]
+        scale_factor=stdp['scale_factor'][1]
+    w_init=stdp['w_init']
     Ap*=wmax;Am*=wmax
 
     # construct the neuron network
@@ -64,3 +64,10 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     )
     runner(dur)
 
+    return syn.w
+
+if __name__=="__main__":
+    spike_train_file="spike_trains.npz"
+    spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
+    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=t_route*1000,mode=0)
+    print(weight_asym)

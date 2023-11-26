@@ -44,7 +44,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
         taup=stdp['taup'][1]
         taum=stdp['taum'][1]
         Ap=stdp['Ap'][1]
-        Am=stdp['Am'][1]
+        Am=-stdp['Am'][1]
         wmax=stdp['wmax'][1]
         scale_factor=stdp['scale_factor'][1]
     w_init=stdp['w_init']
@@ -69,5 +69,5 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=t_route*1000,mode=0)
+    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=t_route*1000,mode=1)
     print(weight_asym)

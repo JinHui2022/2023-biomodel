@@ -58,16 +58,21 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     syn.w*=w_init
     net=bp.Network(pre=pre,syn=syn,post=post)
 
+    # to run
+    turn=0
+    unit_time = 50 ## unit:ms
     runner=bp.DSRunner(
         net,
-        monitors=['syn.w'],
+        # monitors=['syn.w'],
     )
-    runner(dur)
-
+    runner.run(dur)    
+    # while turn<(dur//unit_time):
+    #     runner.run(unit_time)
+    #     turn+=1
     return syn.w
 
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=t_route*1000,mode=0)
+    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
     print(weight_asym)

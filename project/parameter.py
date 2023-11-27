@@ -21,7 +21,7 @@ std = 0.146  # std (param of Gaussian, defined in [0,2*np.pi])
 refra_period = 5e-3 ## [s] the average refractory period
 
 ## parameter about neuron network
-n_PC=500
+n_PC=8000
 place_cell_ratio=0.5
 connection_prob_PC=0.1
 w_init=1e-10 #S
@@ -31,7 +31,7 @@ stdp={
     'taup': [20., 62.5], ## ms
     'taum': [20., 62.5], ## ms
     'Ap': [0.01, 4e-3],
-    'Am': [0.01, 4e-3],
+    'Am': [0.01, -4e-3],
     'wmax': [4e-8, 2e-8], ## S
     'scale_factor': [1.27, 0.62], 
     'w_init': 1e-10 ## S

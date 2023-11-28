@@ -69,6 +69,8 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     # while turn<(dur//unit_time):
     #     runner.run(unit_time)
     #     turn+=1
+    syn.w *= scale_factor  # quick and dirty additional scaling! (in an ideal world the STDP parameters should be changed to include this scaling...)
+
     res=conn.require('conn_mat','pre2post')
     mat=res[0]
     pre2post=res[1]

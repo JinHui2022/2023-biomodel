@@ -36,12 +36,14 @@ class STDP(bp.TwoEndConn):
         dApost=lambda Apost, t: -Apost/self.tau_t
         return bp.JointEq([dApre,dApost])
         
-    def update(self,tdi):
+    def update(self):
+        t=bp.share.load('t')
+        dt=bp.share.load('dt')
         ## update the variables
         pre_spikes=bm.pre2syn(self.pre.spike,self.pre_ids)
         post_spikes=bm.pre2syn(self.post.spike,self.post_ids)
 
-        self.Apre.value, self.Apost.value=self.integral(self.Apre,self.Apost,tdi.t,tdi.dt)
+        self.Apre.value, self.Apost.value=self.integral(self.Apre,self.Apost,t,dt)
 
         # if (pre spikes)
         Apre=bm.where(pre_spikes,self.Apre+self.A1,self.Apre)

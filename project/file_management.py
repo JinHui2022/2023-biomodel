@@ -25,6 +25,35 @@ def save_spike_trains(spike_trains, file_name):
         pickle.dump(spike_trains, file)
     return None
 
+def save_conn_matrix(conn_matrix, file_name):
+    matrix=np.array(conn_matrix)
+    np.savetxt(file_name,matrix)
+    return None
+
+def save_pre2post(pre2post, file_name):
+    arr=np.array(pre2post)
+    np.save(file_name,arr)
+    return None
+
+def save_weight(weight, file_name):
+    arr=np.array(weight)
+    np.save(file_name,arr)
+    return None
+
+def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
+    matrix=np.zeros((n_pre,n_post))
+    for id_vec in range(len(pre2post[1])):
+        start=pre2post[1][id_vec]
+        if id_vec<len(pre2post[1])-1:
+            end=pre2post[1][id_vec+1]
+        else:
+            end=-1
+        post_ides=pre2post[0][start:end]
+        matrix[id_vec][post_ides]=weight[start:end]
+
+    np.savetxt(file_name,matrix)
+    return None
+
 def read_place_field(file_path):
     return None
 
@@ -33,3 +62,19 @@ def read_spike_train(file_path):
         # Load the data from the file
         data = pickle.load(file)
     return data
+
+def read_conn_matrix(file_name):
+    matrix = np.loadtxt(file_name)
+    return matrix
+
+def read_pre2post(file_name):
+    pre2post = np.load(file_name)
+    return pre2post
+
+def read_weight(file_name):
+    weight=np.load(file_name)
+    return weight
+
+def read_weight_matrix(file_name):
+    matrix=np.loadtxt(file_name)
+    return matrix

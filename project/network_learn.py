@@ -13,7 +13,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 from classes import STDP
 from parameter import *
-from file_management import read_spike_train
+from file_management import read_spike_train, save_conn_matrix, save_pre2post, save_weight_matrix, save_weight
 
 def load_spike_trains(file_path):
     """
@@ -69,10 +69,23 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     # while turn<(dur//unit_time):
     #     runner.run(unit_time)
     #     turn+=1
-    return syn.w
+    res=conn.require('conn_mat','pre2post')
+    mat=res[0]
+    pre2post=res[1]
+    return syn.w,mat,pre2post
 
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
-    print(weight_asym)
+    weight_asym,connection,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
+    
+    ## save the result
+    header="asym_"
+    conn_matrix_file="connection_matrix.txt"
+    weight_matrix_file="weight_matrix.txt"
+    weight_file="weight.npy"
+    pre2post_file='pre2post.npy'
+    save_conn_matrix(connection,file_name=header+conn_matrix_file)
+    save_weight_matrix(n_pre=n_PC,n_post=n_PC,pre2post=pre2post,weight=weight_asym,file_name=header+weight_matrix_file)
+    save_weight(weight_asym,header+weight_file)
+    save_pre2post(pre2post,file_name=header+pre2post_file)

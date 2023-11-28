@@ -88,8 +88,20 @@ def plot_STDP_rule(taup, taum, Ap, Am):
         fig.savefig(os.path.join(fig_dir, "Asymmetrc STDP rule.png"), dpi=200)
     
 
-def plot_weight_matrix(weight_matrix, ax):
-    return None
+def plot_weight_matrix(weight_matrix, title):
+    """
+    Saves figure with the weight matrix
+    :param weight_matrix: numpy array representing the weight matrix
+    :param title: title and name of saved img
+    """
+
+    fig = plt.figure()
+    i = plt.imshow(weight_matrix, cmap="GnBu", origin="lower", interpolation="nearest")  # nS conversion
+    fig.colorbar(i)
+    plt.title(title)
+    plt.xlabel("Target neuron")
+    plt.ylabel("Source neuron")
+    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
 
 def plot_raster(input, ax):
     return None

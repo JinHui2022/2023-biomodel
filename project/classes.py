@@ -88,7 +88,7 @@ class STDP(bp.TwoEndConn):
 #         self.spike.value=self.rng.random(self.num)<self.freq[0]*t/1000.
 
 class ca3simu(bp.Network):
-    def __init__(self, freq, conn_PC_E, wmx_PC_E, mode, seed, scale=1.):
+    def __init__(self, freq, conn_PC_E, wmx_PC_E, mode, seed):
         super(ca3simu, self).__init__()
 
         np.random.seed(seed)

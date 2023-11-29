@@ -5,21 +5,9 @@ import numpy as np
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
-from file_management import read_conn_matrix, read_weight_matrix
+from file_management import read_pre2post, read_weight
 from classes import ca3simu
 from parameter import *
-
-# input file name
-conn_file="connection_PC.txt"
-weight_matrix_file="weight_matrix_PC.txt"
-
-# get the conn and weight matrix
-conn_PC=read_conn_matrix(conn_file)
-weight_matrix_PC=read_weight_matrix(weight_matrix_file)
-
-freq=rate_MF
-mode=0 # asym
-seed=1234
 
 # build the network
 def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,seed):
@@ -30,4 +18,39 @@ def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,seed):
     )
     runner(dur)
 
-    ## to plot
+    ts=runner.mon.ts
+    PC_spikes=runner.mon['PCs.spike']
+    PC_freqs=runner.mon['PCs.freq']
+    return ts, PC_spikes, PC_freqs
+
+def get_wmx_preid(n_pre,n_post,pre2post,weight):
+    matrix=np.zeros((n_pre,n_post))
+    pre_id=np.zeros(n_pre)
+    for id_vec in range(len(pre2post[1])-1):
+        start=pre2post[1][id_vec]
+        end=pre2post[1][id_vec+1]
+        post_ides=pre2post[0][start:end]
+        matrix[id_vec][post_ides]=weight[start:end]
+        pre_id[start:end]=id_vec
+    return matrix,pre_id
+
+# input file name
+header="asym_"
+pre2post_file="pre2post.npy"
+weight_file="weight.npy"
+
+# get the pre2post and weight 
+pre2post_PC=read_pre2post(pre2post_file)
+weight_PC=read_weight(weight_file)
+
+freq=rate_MF
+mode="asym"
+seed=1234
+dur=1000 ## ms
+
+# to run
+wmx_PC,pre_id=get_wmx_preid(n_pre=n_PC,n_post=n_PC,pre2post=pre2post_PC,weight=weight_PC)
+post_id=np.array(weight_PC[0])
+conn=bp.conn.IJConn(i=pre_id,j=post_id)
+conn = conn(pre_size=n_PC, post_size=n_PC)
+ts,PC_spikes,PC_freqs=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,seed=seed)

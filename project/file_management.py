@@ -46,12 +46,9 @@ def save_weight(weight, file_name):
 
 def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
     matrix=np.zeros((n_pre,n_post))
-    for id_vec in range(len(pre2post[1])):
+    for id_vec in range(len(pre2post[1])-1):
         start=pre2post[1][id_vec]
-        if id_vec<len(pre2post[1])-1:
-            end=pre2post[1][id_vec+1]
-        else:
-            end=-1
+        end=pre2post[1][id_vec+1]
         post_ides=pre2post[0][start:end]
         matrix[id_vec][post_ides]=weight[start:end]
 

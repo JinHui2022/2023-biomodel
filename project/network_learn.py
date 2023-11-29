@@ -13,7 +13,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 from classes import STDP
 from parameter import *
-from file_management import read_spike_train, save_pre2post, save_weight_matrix, save_weight
+from file_management import read_spike_train, save_pre2post, save_weight
 
 def load_spike_trains(file_path):
     """
@@ -83,10 +83,7 @@ if __name__=="__main__":
     
     ## save the result
     header="asym_"
-    conn_matrix_file="connection_matrix.txt"
-    weight_matrix_file="weight_matrix.txt"
     weight_file="weight.npy"
     pre2post_file='pre2post.npy'
-    save_weight_matrix(n_pre=n_PC,n_post=n_PC,pre2post=pre2post,weight=weight_asym,file_name=header+weight_matrix_file)
     save_weight(weight_asym,header+weight_file)
     save_pre2post(pre2post,file_name=header+pre2post_file)

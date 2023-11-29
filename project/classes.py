@@ -116,30 +116,28 @@ class ca3simu(bp.Network):
         BCs=bp.neurons.AdExIF(n_BC, V_rest=Vrest_BC,V_reset=Vreset_BC,V_th=spike_th_BC,V_T=theta_BC,
                               delta_T=delta_T_BC,a=a_BC,b=b_BC,R=Rm_BC,tau=tau_mem_BC,tau_w=tau_w_BC,tau_ref=tref_BC)
         
-        # set the weight
-
         # construct the connections
         ## MF -> PC
         self.MF2PC=DualExponential(I_MF,PCs,bp.conn.One2One(),g_max=z*w_PC_MF,tau_decay=decay_PC_MF,tau_rise=rise_PC_MF,
-                                   delay_step=delay_PC_E,E=Erev_E)
+                                   delay_step=delay_PC_E,output=bp.synapses.COBA(Erev_E))
         ## PC -> PC
         self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
-                                   delay_step=delay_PC_E,E=Erev_E)
+                                   delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         
         ## BC -> PC
         conn_PC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=42)
         self.PC_I=DualExponential(BCs,PCs,conn_PC_I,g_max=z*w_PC_I,tau_decay=decay_PC_I,tau_rise=rise_PC_I,
-                                    delay_step=delay_PC_E,E=Erev_I)
+                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_I))
         
         ## PC -> BC
         conn_BC_E=bp.conn.FixedProb(prob=connection_prob_PC,include_self=False,seed=seed//13)
         self.BC_E=DualExponential(PCs,BCs,conn_BC_E,g_max=z*w_BC_E,tau_decay=decay_BC_E,tau_rise=rise_BC_E,
-                                  delay_step=delay_BC_E,E=Erev_E)
+                                  delay_step=delay_BC_E,output=bp.synouts.COBA(Erev_E))
         
         ## BC -> BC
         conn_BC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=seed//7)
         self.BC_I=DualExponential(BCs,BCs,conn_BC_I,g_max=z*w_BC_I,tau_decay=decay_BC_I,tau_rise=rise_BC_I,
-                                  delay_step=delay_BC_I,E=Erev_I)
+                                  delay_step=delay_BC_I,output=bp.synouts.COBA(Erev_I))
         
         ## store the variables in all these neuron group
         self.MF=I_MF

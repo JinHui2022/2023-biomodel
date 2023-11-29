@@ -22,18 +22,18 @@ class EINet(bp.Network):
         elif mode == "sym":
             w_PC_MF = 19.15
         self.MF2PC=DualExponential(I_MF,PCs,bp.conn.One2One(),g_max=z*w_PC_MF,tau_decay=decay_PC_MF,tau_rise=rise_PC_MF,
-                                   delay_step=delay_PC_E,E=Erev_E)
+                                   delay_step=delay_PC_E,E=Erev_E,output=bp.dyn.COBA.desc(E=0.))
         self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
-                                   delay_step=delay_PC_E,E=Erev_E)
+                                   delay_step=delay_PC_E,E=Erev_E,output=bp.dyn.COBA.desc(E=0.))
         conn_PC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=seed//3)
         self.PC_I=DualExponential(BCs,PCs,conn_PC_I,g_max=z*w_PC_I,tau_decay=decay_PC_I,tau_rise=rise_PC_I,
-                                    delay_step=delay_PC_E,E=Erev_I)
+                                    delay_step=delay_PC_E,E=Erev_I,output=bp.dyn.COBA.desc(E=0.))
         conn_BC_E=bp.conn.FixedProb(prob=connection_prob_PC,include_self=False,seed=seed//6)
         self.BC_E=DualExponential(PCs,BCs,conn_BC_E,g_max=z*w_BC_E,tau_decay=decay_BC_E,tau_rise=rise_BC_E,
-                                  delay_step=delay_BC_E,E=Erev_E)
+                                  delay_step=delay_BC_E,E=Erev_E,output=bp.dyn.COBA.desc(E=-70.))
         conn_BC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=seed//9)
         self.BC_I=DualExponential(BCs,BCs,conn_BC_I,g_max=z*w_BC_I,tau_decay=decay_BC_I,tau_rise=rise_BC_I,
-                                  delay_step=delay_BC_I,E=Erev_I)
+                                  delay_step=delay_BC_I,E=Erev_I,output=bp.dyn.COBA.desc(E=-70.))
         self.MF=I_MF
         self.PCs=PCs
         self.BCs=BCs    

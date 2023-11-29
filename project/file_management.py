@@ -31,8 +31,12 @@ def save_conn_matrix(conn_matrix, file_name):
     return None
 
 def save_pre2post(pre2post, file_name):
-    arr=np.array(pre2post)
-    np.save(file_name,arr)
+    dict_pre2post={
+        "post_id":np.array(pre2post[0]),
+        "pre_pt":np.array(pre2post[1])
+    }
+    with open(file_name,'wb') as f:
+        pickle.dump(dict_pre2post,f)
     return None
 
 def save_weight(weight, file_name):
@@ -68,7 +72,7 @@ def read_conn_matrix(file_name):
     return matrix
 
 def read_pre2post(file_name):
-    pre2post = np.load(file_name)
+    pre2post = pickle.load(file_name)
     return pre2post
 
 def read_weight(file_name):

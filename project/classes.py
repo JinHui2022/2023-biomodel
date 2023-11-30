@@ -6,8 +6,8 @@ import numpy as np
 from brainpy.synapses import DualExponential
 from parameter import *
 
-class STDP(bp.TwoEndConn):
-    def __init__(self,pre,post,conn,tau_s,tau_t,A1,A2,delay_step=0,method='exp_auto',**kwargs):
+class STDP(bp.synapses.TwoEndConn):
+    def __init__(self,pre,post,conn,tau_s,tau_t,A1,A2,wmax,delay_step=0,method='exp_auto',**kwargs):
         super(STDP, self).__init__(pre=pre,post=post,conn=conn,**kwargs)
 
         # initialize parameters
@@ -16,6 +16,7 @@ class STDP(bp.TwoEndConn):
         self.A1=A1 # Apre
         self.A2=A2 # Apost
         self.delay_step=delay_step
+        self.wmax=wmax
 
         # fetch pre_idexes and post_idexes
         self.pre_ids,self.post_ids=self.conn.require('pre_ids','post_ids')
@@ -53,6 +54,8 @@ class STDP(bp.TwoEndConn):
         # if (post spikes)
         Apost=bm.where(post_spikes,self.Apost+self.A2,self.Apost)
         self.w.value=bm.where(post_spikes,self.w+self.Apre,self.w)
+        self.w.value=bm.where(self.w<0,0,self.w)
+        self.w.value=bm.where(self.w>self.wmax,self.wmax,self.w)
         self.Apre.value=Apre
         self.Apost.value=Apost
 
@@ -119,7 +122,7 @@ class ca3simu(bp.Network):
         # construct the connections
         ## MF -> PC
         self.MF2PC=DualExponential(I_MF,PCs,bp.conn.One2One(),g_max=z*w_PC_MF,tau_decay=decay_PC_MF,tau_rise=rise_PC_MF,
-                                   delay_step=delay_PC_E,output=bp.synapses.COBA(Erev_E))
+                                   delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         ## PC -> PC
         self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))

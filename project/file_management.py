@@ -3,6 +3,7 @@
 
 import numpy as np
 import pickle
+import json
 import os
 
 fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "result")
@@ -32,11 +33,11 @@ def save_conn_matrix(conn_matrix, file_name):
 
 def save_pre2post(pre2post, file_name):
     dict_pre2post={
-        "post_id":np.array(pre2post[0]),
-        "pre_pt":np.array(pre2post[1])
+        "post_id":np.array(pre2post[0]).tolist(),
+        "pre_pt":np.array(pre2post[1]).tolist()
     }
-    with open(file_name,'wb') as f:
-        pickle.dump(dict_pre2post,f)
+    with open(file_name,'w') as f:
+        json.dump(dict_pre2post,f)
     return None
 
 def save_weight(weight, file_name):
@@ -69,7 +70,8 @@ def read_conn_matrix(file_name):
     return matrix
 
 def read_pre2post(file_name):
-    pre2post = pickle.load(file_name)
+    with open(file_name, 'r') as file:
+        pre2post = json.load(file)
     return pre2post
 
 def read_weight(file_name):

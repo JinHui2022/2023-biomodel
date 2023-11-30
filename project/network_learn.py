@@ -55,7 +55,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     pre=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
     post=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
     conn=bp.conn.FixedProb(prob=connection_prob_PC, include_self=False, seed=42)
-    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am)
+    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am,wmax=wmax)
     syn.w*=w_init
     net=bp.Network(pre=pre,syn=syn,post=post)
 
@@ -79,11 +79,11 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym,connection,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
+    weight_asym,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
     
     ## save the result
     header="asym_"
     weight_file="weight.npy"
-    pre2post_file='pre2post.npy'
+    pre2post_file='pre2post.json'
     save_weight(weight_asym,header+weight_file)
     save_pre2post(pre2post,file_name=header+pre2post_file)

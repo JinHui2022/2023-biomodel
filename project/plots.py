@@ -103,8 +103,23 @@ def plot_weight_matrix(weight_matrix, title):
     plt.ylabel("Source neuron")
     fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
 
-def plot_raster(input, ax):
-    return None
+def plot_raster(spike_times, spike_neurons, title):
+    sp = np.asarray(spike_neurons)
+    ts = np.asarray(spike_times)
+
+    # get index and time
+    elements = np.where(sp > 0.)
+    index = elements[1]
+    time = ts[elements[0]]
+    color = index
+
+    # plot raster
+    fig=plt.figure()
+    plt.scatter(time, index, c=color, cmap="cividis", marker=".", s=12)
+    plt.xlabel("Time(ms)")
+    plt.ylabel("Neuron ID")
+    plt.title(title)
+    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
 
 def plot_spike_events(event_time, ax):
     return None

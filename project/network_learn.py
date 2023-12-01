@@ -13,7 +13,7 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 from classes import STDP
 from parameter import *
-from file_management import read_spike_train
+from file_management import read_spike_train, save_pre2post, save_weight
 
 def load_spike_trains(file_path):
     """
@@ -32,6 +32,7 @@ def load_spike_trains(file_path):
     return spiking_neurons, spike_times
 
 def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
+    bm.set_dt(2.)
     # STDP parameter
     if mode==0: ## asym
         taup=stdp['taup'][0]
@@ -54,20 +55,35 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     pre=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
     post=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
     conn=bp.conn.FixedProb(prob=connection_prob_PC, include_self=False, seed=42)
-    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am)
+    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am,wmax=wmax)
     syn.w*=w_init
     net=bp.Network(pre=pre,syn=syn,post=post)
 
+    # to run
+    turn=0
+    unit_time = 50 ## unit:ms
     runner=bp.DSRunner(
         net,
-        monitors=['syn.w'],
+        # monitors=['syn.w'],
     )
-    runner(dur)
+    runner.run(dur)    
+    # while turn<(dur//unit_time):
+    #     runner.run(unit_time)
+    #     turn+=1
+    syn.w *= scale_factor  # quick and dirty additional scaling! (in an ideal world the STDP parameters should be changed to include this scaling...)
 
-    return syn.w
+    res=conn.require('pre2post')
+    pre2post=res
+    return syn.w,pre2post
 
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=t_route*1000,mode=0)
-    print(weight_asym)
+    weight_asym,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
+    
+    ## save the result
+    header="asym_"
+    weight_file="weight.npy"
+    pre2post_file='pre2post.json'
+    save_weight(weight_asym,header+weight_file)
+    save_pre2post(pre2post,file_name=header+pre2post_file)

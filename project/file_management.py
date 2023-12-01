@@ -3,6 +3,7 @@
 
 import numpy as np
 import pickle
+import json
 import os
 
 fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "result")
@@ -25,6 +26,36 @@ def save_spike_trains(spike_trains, file_name):
         pickle.dump(spike_trains, file)
     return None
 
+def save_conn_matrix(conn_matrix, file_name):
+    matrix=np.array(conn_matrix)
+    np.savetxt(file_name,matrix)
+    return None
+
+def save_pre2post(pre2post, file_name):
+    dict_pre2post={
+        "post_id":np.array(pre2post[0]).tolist(),
+        "pre_pt":np.array(pre2post[1]).tolist()
+    }
+    with open(file_name,'w') as f:
+        json.dump(dict_pre2post,f)
+    return None
+
+def save_weight(weight, file_name):
+    arr=np.array(weight)
+    np.save(file_name,arr)
+    return None
+
+def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
+    matrix=np.zeros((n_pre,n_post))
+    for id_vec in range(len(pre2post[1])-1):
+        start=pre2post[1][id_vec]
+        end=pre2post[1][id_vec+1]
+        post_ides=pre2post[0][start:end]
+        matrix[id_vec][post_ides]=weight[start:end]
+
+    np.savetxt(file_name,matrix)
+    return None
+
 def read_place_field(file_path):
     return None
 
@@ -33,3 +64,20 @@ def read_spike_train(file_path):
         # Load the data from the file
         data = pickle.load(file)
     return data
+
+def read_conn_matrix(file_name):
+    matrix = np.loadtxt(file_name)
+    return matrix
+
+def read_pre2post(file_name):
+    with open(file_name, 'r') as file:
+        pre2post = json.load(file)
+    return pre2post
+
+def read_weight(file_name):
+    weight=np.load(file_name)
+    return weight
+
+def read_weight_matrix(file_name):
+    matrix=np.loadtxt(file_name)
+    return matrix

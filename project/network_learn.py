@@ -32,7 +32,7 @@ def load_spike_trains(file_path):
     return spiking_neurons, spike_times
 
 def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
-    bm.set_dt(2.)
+    bm.set_dt(0.5)
     # STDP parameter
     if mode==0: ## asym
         taup=stdp['taup'][0]
@@ -61,7 +61,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
 
     # to run
     turn=0
-    unit_time = 50 ## unit:ms
+    unit_time = 1000 ## unit:ms
     runner=bp.DSRunner(
         net,
         # monitors=['syn.w'],

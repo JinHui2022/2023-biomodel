@@ -96,9 +96,36 @@ def plot_weight_matrix(weight_matrix, title):
     """
 
     fig = plt.figure()
-    i = plt.imshow(weight_matrix, cmap="GnBu", origin="lower", interpolation="nearest")  # nS conversion
+    i = plt.imshow(weight_matrix, cmap="GnBu", origin="lower", interpolation="nearest")
     fig.colorbar(i)
     plt.title(title)
+    plt.axis([0, len(weight_matrix), 0, len(weight_matrix)])
+    plt.xlabel("Target neuron")
+    plt.ylabel("Source neuron")
+    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
+    
+def plot_weight_matrix_avg(weight_matrix, n_pops, title):
+    """
+    Saves figure with the weight matrix
+    :param weight_matrix: numpy array representing the weight matrix
+    :param n_pops: number of populations
+    :param title: title and name of saved img
+    """
+
+    assert len(weight_matrix) % n_pops == 0
+
+    pop_size = int(len(weight_matrix) / n_pops)
+    mean_wmx = np.zeros((n_pops, n_pops))
+    for i in range(n_pops):
+        for j in range(n_pops):
+            tmp = weight_matrix[int(i*pop_size):int((i+1)*pop_size), int(j*pop_size):int((j+1)*pop_size)]
+            mean_wmx[i, j] = np.mean(tmp)
+
+    fig = plt.figure()
+    i = plt.imshow(mean_wmx, cmap="GnBu", origin="lower", interpolation="nearest")
+    fig.colorbar(i)
+    plt.title(title)
+    plt.axis([0, len(mean_wmx), 0, len(mean_wmx)])
     plt.xlabel("Target neuron")
     plt.ylabel("Source neuron")
     fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)

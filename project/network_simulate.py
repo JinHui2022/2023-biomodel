@@ -57,7 +57,6 @@ post_id=pre2post_PC[0]
 conn=bp.conn.IJConn(i=pre_id,j=post_id)
 conn = conn(pre_size=n_PC, post_size=n_PC)
 ts,PC_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,seed=seed)
-print(PC_spikes[-1])
 
 # to plot
 fig,gs=plt.subplots()

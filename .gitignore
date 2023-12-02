@@ -1,3 +1,5 @@
 
 *.emmx
 *.pyc
+*.json
+*.npy

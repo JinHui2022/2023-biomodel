@@ -60,21 +60,14 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     net=bp.Network(pre=pre,syn=syn,post=post)
 
     # to run
-    turn=0
-    unit_time = 1000 ## unit:ms
     runner=bp.DSRunner(
         net,
         # monitors=['syn.w'],
     )
     runner.run(dur)    
-    # while turn<(dur//unit_time):
-    #     runner.run(unit_time)
-    #     turn+=1
     syn.w *= scale_factor  # quick and dirty additional scaling! (in an ideal world the STDP parameters should be changed to include this scaling...)
 
-    res=conn.require('pre2post')
-    pre2post=res
-    return syn.w,pre2post
+    return syn.w,syn.pre2post
 
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"

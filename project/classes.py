@@ -19,7 +19,7 @@ class STDP(bp.synapses.TwoEndConn):
         self.wmax=wmax
 
         # fetch pre_idexes and post_idexes
-        self.pre_ids,self.post_ids=self.conn.require('pre_ids','post_ids')
+        self.pre_ids,self.post_ids,self.pre2post=self.conn.require('pre_ids','post_ids','pre2post')
 
         # initialize variables
         num=len(self.pre_ids)

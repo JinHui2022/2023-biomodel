@@ -146,3 +146,45 @@ class ca3simu(bp.Network):
         self.MF=I_MF
         self.PCs=PCs
         self.BCs=BCs        
+
+class STPDual(bp.TwoEndConn):
+    def __init__(self,pre,post,conn,g_max,tau_decay,tau_rise,delay_step,U,tau_f,tau_d,method='exp_auto'):
+        super(STPDual,self).__init__(pre=pre,post=post,conn=conn)
+        
+        self.pre_ids,self.post_ids,self.pre2post = self.conn.require('pre_ids','post_ids','pre2post')
+        
+        self.x = bm.Variable(bm.ones(self.pre.num))
+        self.u = bm.Variable(bm.zeros(self.pre.num))
+        self.g = bm.Variable(bm.zeros(self.post.num))
+        self.h = bm.Variable(bm.zeros(self.post.num))
+        
+        self.delay1 = bm.LengthDelay(self.pre.spike, delay_step)
+        self.delay2 = bm.LengthDelay(self.g, delay_step)
+        
+        self.int_h = bp.odeint(method=method,f=lambda h,t:-h/self.tau_rise)
+        self.int_g = bp.odeint(method=method,f=lambda g,t,h:-g/self.tau_decat + h)
+        self.int_u = bp.odeint(method=method,f=lambda u,t:-u/self.tau_f)
+        self.int_x = bp.odeint(method=method,f=lambda x,t:(1-x)/self.tau_d)
+    
+    def update(self,tdi):
+        delayed_pre_spike = self.delay1(self.delay_step)
+        delayed_g = self.delay2(self.delay_step)
+        self.delay.update(self.pre.spike)
+        
+        post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num,self.g_max)
+        post_g = bm.syn2post(delayed_g, self.post_ids, self.post.num)
+        self.post.input += post_g *(self.E - self.post.V_rest)
+        
+        syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)
+        
+        self.h.value = self.int_h(self.h,tdi.t,tdi.dt) + post_sp
+        g = self.int_g(self.g,tdi.t,self.h,tdi.dt)
+        u = self.int_u(self.u,tdi.t,tdi.dt)
+        x = self.int_x(self.x,tdi.t,tdi.dt)
+        u = bm.where(syn_sps,u+self.U*(1-self.u))
+        x = bm.where(syn_sps,x-u*self.x,x)
+        g = bm.where(syn_sps,g+self.g_max*u*self.x,g)
+        
+        self.u.value = u
+        self.x.value = x
+        self.g.value = g

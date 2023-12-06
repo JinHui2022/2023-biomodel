@@ -33,17 +33,18 @@ def generate_spike_train(n_neurons, place_cell_ratio, ordered=True, seed=1234):
         p=np.concatenate([2*p_uniform*np.ones(100),tmp*np.ones(n_neurons-2*100),2*p_uniform*np.ones(100)]) # oversample (double prop.) the two ends of the track
         place_cells=np.sort(np.random.choice(neuronIDs,int(n_neurons*place_cell_ratio),p=p,replace=False),kind="mergesort")
         phi_starts=np.sort(np.random.rand(n_neurons),kind="mergesort")
+        phi_starts -= 0.1*np.pi  # shift half a PF against boundary effects (mid_PFs will be in [0, 2*np.pi]...)
 
     place_fields={neuron_id:phi_starts[i] for i, neuron_id in enumerate(place_cells)}
 
     ## generate spike trains
-    spike_trains=np.zeros((n_neurons,), dtype=np.object_)
+    spike_trains=[]
     for neuron_id in tqdm(range(0, n_neurons)):
         if neuron_id in place_fields:
             spike_train=inhom_poisson(infield_rate,t_max,place_fields[neuron_id],seed=seed)
         else:
             spike_train=hom_poisson(outfield_rate,t_max,seed)
-        spike_trains[neuron_id]=spike_train
+        spike_trains.append(spike_train)
         seed+=1
     
     return place_fields,spike_trains

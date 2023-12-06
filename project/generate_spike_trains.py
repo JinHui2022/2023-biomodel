@@ -32,22 +32,36 @@ def generate_spike_train(n_neurons, place_cell_ratio, ordered=True, seed=1234):
         tmp=(1-2*2*100*p_uniform)/(n_neurons-200)
         p=np.concatenate([2*p_uniform*np.ones(100),tmp*np.ones(n_neurons-2*100),2*p_uniform*np.ones(100)]) # oversample (double prop.) the two ends of the track
         place_cells=np.sort(np.random.choice(neuronIDs,int(n_neurons*place_cell_ratio),p=p,replace=False),kind="mergesort")
-        phi_starts=np.sort(np.random.rand(n_neurons),kind="mergesort")
+        phi_starts=np.sort(np.random.rand(n_neurons),kind="mergesort")[place_cells] * 2*np.pi
         phi_starts -= 0.1*np.pi  # shift half a PF against boundary effects (mid_PFs will be in [0, 2*np.pi]...)
 
     place_fields={neuron_id:phi_starts[i] for i, neuron_id in enumerate(place_cells)}
 
-    ## generate spike trains
+    # generate spike trains
     spike_trains=[]
     for neuron_id in tqdm(range(0, n_neurons)):
         if neuron_id in place_fields:
             spike_train=inhom_poisson(infield_rate,t_max,place_fields[neuron_id],seed=seed)
         else:
-            spike_train=hom_poisson(outfield_rate,t_max,seed)
+            spike_train=hom_poisson(outfield_rate,100,t_max,seed)
         spike_trains.append(spike_train)
         seed+=1
     
-    return place_fields,spike_trains
+    #refractoriness
+    spike_trains_updated = []; count = 0
+    for single_spike_train in spike_trains:
+        tmp = np.diff(single_spike_train)  # calculate ISIs
+        idx = np.where(tmp < refra_period)[0] + 1
+        if idx.size:
+            count += idx.size
+            single_spike_train_updated = np.delete(single_spike_train, idx).tolist()  # delete spikes which are too close
+        else:
+            single_spike_train_updated = single_spike_train
+        spike_trains_updated.append(single_spike_train_updated)
+
+    print("%i spikes deleted becuse of too short refractory period" % count)
+    
+    return place_fields,spike_trains_updated
 
 place_fields,spike_trains=generate_spike_train(n_neurons=n_PC,place_cell_ratio=place_cell_ratio)
 

@@ -29,30 +29,29 @@ def evaluate_lambda_t(t, phi_start, phase0):
 
     return lambda_t
 
-def hom_poisson(lambda_, t_max, seed):
+def hom_poisson(lambda_, n_rnds, t_max, seed):
     """
     Generates Poisson process (interval times X_i = -ln(U_i)/lambda_, where lambda_ is the rate and U_i ~ Uniform(0,1))
     :param lambda_: rate of the Poisson process
+    :param n_rnds: number of random numbers to gerenerate
     :param t_max: length of the generate Poisson process
     :param seed: seed for random number generation (see `_generate_exp_rand_numbers()`)
     :return: poisson_proc: np.array which represent a homogenos Poisson process
     """
-    # np.random.seed(seed)
-    # rnd_isis = -1.0 / lambda_ * np.log(np.random.rand(100))
-    # for i in rnd_isis:
-    #     while i < refra_period:
-    #         i = -1.0 / lambda_ * np.log(np.random.rand())
-    # poisson_proc = np.cumsum(rnd_isis)
-    # return poisson_proc[np.where(poisson_proc <= t_max)]
-    event_times=[]
-    t=0
-    while t<t_max:
-       np.random.seed(seed)
-       U=np.random.uniform(0,1)
-       t-=np.log(U)/lambda_
-       t+=refra_period
-       event_times.append(t)
-    return np.array(event_times)
+    np.random.seed(seed)
+    rnd_isis = -1.0 / lambda_ * np.log(np.random.rand(n_rnds))
+    poisson_proc = np.cumsum(rnd_isis)
+    
+    return poisson_proc[np.where(poisson_proc <= t_max)]
+    #event_times=[]
+    #t=0
+    #while t<t_max:
+    #   np.random.seed(seed)
+    #   U=np.random.uniform(0,1)
+    #   t-=np.log(U)/lambda_
+    #   t+=refra_period
+    #   event_times.append(t)
+    #return np.array(event_times)
 
 def inhom_poisson(lambda_, t_max, phi_start, seed, phase0=0.0):
     """
@@ -67,7 +66,7 @@ def inhom_poisson(lambda_, t_max, phi_start, seed, phase0=0.0):
     :return: inhom_poisson_proc: inhomogenos Poisson process representing the spike train of a place cell
     """
 
-    poisson_proc=hom_poisson(lambda_,t_max,seed)
+    poisson_proc=hom_poisson(lambda_,10000,t_max,seed)
 
     # keep only a subset of spikes
     lambda_t=evaluate_lambda_t(poisson_proc,phi_start,phase0)

@@ -106,3 +106,8 @@ stdp={
     'w_init': 1e-10 ## S
 }
 w_PC_MF=np.array([21.5,19.15])
+
+#parameters about STP synapses, which are copied from book
+U_PC = 0.4
+tau_d_PC = 200.
+tau_f_PC = 15.

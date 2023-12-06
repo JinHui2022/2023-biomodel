@@ -91,7 +91,7 @@ class STDP(bp.synapses.TwoEndConn):
 #         self.spike.value=self.rng.random(self.num)<self.freq[0]*t/1000.
 
 class ca3simu(bp.Network):
-    def __init__(self, freq, conn_PC_E, wmx_PC_E, mode, seed):
+    def __init__(self, freq, conn_PC_E, wmx_PC_E, mode, seed, mode_stp):
         super(ca3simu, self).__init__()
 
         np.random.seed(seed)
@@ -124,8 +124,13 @@ class ca3simu(bp.Network):
         self.MF2PC=DualExponential(I_MF,PCs,bp.conn.One2One(),g_max=z*w_PC_MF,tau_decay=decay_PC_MF,tau_rise=rise_PC_MF,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         ## PC -> PC
-        self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
+        ## choose if use STP synapses
+        if mode_STP == 0:
+            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
+        else:
+            self.PC_E=STPDual(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
+                                   delay_step=delay_PC_E,U=U_PC,tau_d=tau_d_PC,tau_f=tau_f_PC,output=bp.synouts.COBA(Erev_E))
         
         ## BC -> PC
         conn_PC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=42)
@@ -147,25 +152,25 @@ class ca3simu(bp.Network):
         self.PCs=PCs
         self.BCs=BCs        
 
-class STPDual(bp.TwoEndConn):
+class STPDual(bp. synapses.TwoEndConn):
     def __init__(self,pre,post,conn,g_max,tau_decay,tau_rise,delay_step,U,tau_f,tau_d,method='exp_auto'):
         super(STPDual,self).__init__(pre=pre,post=post,conn=conn)
-        
+        #get the data
         self.pre_ids,self.post_ids,self.pre2post = self.conn.require('pre_ids','post_ids','pre2post')
-        
+        #initialize
         self.x = bm.Variable(bm.ones(self.pre.num))
         self.u = bm.Variable(bm.zeros(self.pre.num))
         self.g = bm.Variable(bm.zeros(self.post.num))
         self.h = bm.Variable(bm.zeros(self.post.num))
-        
+        #delay pre.spike and g
         self.delay1 = bm.LengthDelay(self.pre.spike, delay_step)
         self.delay2 = bm.LengthDelay(self.g, delay_step)
-        
+        #functions
         self.int_h = bp.odeint(method=method,f=lambda h,t:-h/self.tau_rise)
         self.int_g = bp.odeint(method=method,f=lambda g,t,h:-g/self.tau_decat + h)
         self.int_u = bp.odeint(method=method,f=lambda u,t:-u/self.tau_f)
         self.int_x = bp.odeint(method=method,f=lambda x,t:(1-x)/self.tau_d)
-    
+    #caculate and update
     def update(self,tdi):
         delayed_pre_spike = self.delay1(self.delay_step)
         delayed_g = self.delay2(self.delay_step)
@@ -187,4 +192,4 @@ class STPDual(bp.TwoEndConn):
         
         self.u.value = u
         self.x.value = x
-        self.g.value = g
+        self.g.value = g 

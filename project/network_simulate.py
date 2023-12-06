@@ -10,8 +10,8 @@ from classes import ca3simu
 from parameter import *
 
 # build the network
-def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,seed):
-    net=ca3simu(freq=freq,conn_PC_E=conn_PC,wmx_PC_E=weight_matrix_PC,mode=mode,seed=seed)
+def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,mode_stp,seed):
+    net=ca3simu(freq=freq,conn_PC_E=conn_PC,wmx_PC_E=weight_matrix_PC,mode=mode,mode_stp=mode_stp,seed=seed)
     runner=bp.DSRunner(
         net,
         monitors=['PCs.spike']
@@ -48,6 +48,7 @@ pre2post_PC[1]=np.array(pre2post_PC_tmp['pre_pt'])
 
 freq=rate_MF
 mode="asym"
+mode_stp=0
 seed=1234
 dur=1000 ## ms
 
@@ -56,7 +57,7 @@ wmx_PC,pre_id=get_wmx_preid(n_pre=n_PC,n_post=n_PC,pre2post=pre2post_PC,weight=w
 post_id=pre2post_PC[0]
 conn=bp.conn.IJConn(i=pre_id,j=post_id)
 conn = conn(pre_size=n_PC, post_size=n_PC)
-ts,PC_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,seed=seed)
+ts,PC_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,mode_stp=mode_stp,seed=seed)
 
 # to plot
 fig,gs=plt.subplots()

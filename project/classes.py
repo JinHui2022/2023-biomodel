@@ -50,7 +50,7 @@ class STDP(bp.synapses.TwoEndConn):
 
         # if (pre spikes)
         Apre=bm.where(pre_spikes,self.Apre+self.A1,self.Apre)
-        self.w.value=bm.where(pre_spikes,self.w-self.Apost,self.w)
+        self.w.value=bm.where(pre_spikes,self.w+self.Apost,self.w)
         # if (post spikes)
         Apost=bm.where(post_spikes,self.Apost+self.A2,self.Apost)
         self.w.value=bm.where(post_spikes,self.w+self.Apre,self.w)

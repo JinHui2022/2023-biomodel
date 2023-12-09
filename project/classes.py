@@ -5,6 +5,9 @@ import brainpy.math as bm
 import numpy as np
 from brainpy.synapses import DualExponential
 from parameter import *
+import jax.numpy as jnp
+from brainpy.check import is_float
+from brainpy._src.initialize import variable
 
 class STDP(bp.synapses.TwoEndConn):
     def __init__(self,pre,post,conn,tau_s,tau_t,A1,A2,wmax,delay_step=0,method='exp_auto',**kwargs):
@@ -125,12 +128,12 @@ class ca3simu(bp.Network):
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         ## PC -> PC
         ## choose if use STP synapses
-        if mode_STP == 0:
+        if mode_stp == 0:
             self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         else:
-            self.PC_E=STPDual(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
-                                   delay_step=delay_PC_E,U=U_PC,tau_d=tau_d_PC,tau_f=tau_f_PC,output=bp.synouts.COBA(Erev_E))
+            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,stp = STD(),tau_decay=decay_PC_E,tau_rise=rise_PC_E,
+                                   delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         
         ## BC -> PC
         conn_PC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=42)
@@ -152,44 +155,42 @@ class ca3simu(bp.Network):
         self.PCs=PCs
         self.BCs=BCs        
 
-class STPDual(bp. synapses.TwoEndConn):
-    def __init__(self,pre,post,conn,g_max,tau_decay,tau_rise,delay_step,U,tau_f,tau_d,method='exp_auto'):
-        super(STPDual,self).__init__(pre=pre,post=post,conn=conn)
-        #get the data
-        self.pre_ids,self.post_ids,self.pre2post = self.conn.require('pre_ids','post_ids','pre2post')
-        #initialize
-        self.x = bm.Variable(bm.ones(self.pre.num))
-        self.u = bm.Variable(bm.zeros(self.pre.num))
-        self.g = bm.Variable(bm.zeros(self.post.num))
-        self.h = bm.Variable(bm.zeros(self.post.num))
-        #delay pre.spike and g
-        self.delay1 = bm.LengthDelay(self.pre.spike, delay_step)
-        self.delay2 = bm.LengthDelay(self.g, delay_step)
-        #functions
-        self.int_h = bp.odeint(method=method,f=lambda h,t:-h/self.tau_rise)
-        self.int_g = bp.odeint(method=method,f=lambda g,t,h:-g/self.tau_decat + h)
-        self.int_u = bp.odeint(method=method,f=lambda u,t:-u/self.tau_f)
-        self.int_x = bp.odeint(method=method,f=lambda x,t:(1-x)/self.tau_d)
-    #caculate and update
-    def update(self,tdi):
-        delayed_pre_spike = self.delay1(self.delay_step)
-        delayed_g = self.delay2(self.delay_step)
-        self.delay.update(self.pre.spike)
-        
-        post_sp = bm.pre2post_event_sum(delayed_pre_spike, self.pre2post, self.post.num,self.g_max)
-        post_g = bm.syn2post(delayed_g, self.post_ids, self.post.num)
-        self.post.input += post_g *(self.E - self.post.V_rest)
-        
-        syn_sps = bm.pre2syn(self.pre.spike, self.pre_ids)
-        
-        self.h.value = self.int_h(self.h,tdi.t,tdi.dt) + post_sp
-        g = self.int_g(self.g,tdi.t,self.h,tdi.dt)
-        u = self.int_u(self.u,tdi.t,tdi.dt)
-        x = self.int_x(self.x,tdi.t,tdi.dt)
-        u = bm.where(syn_sps,u+self.U*(1-self.u))
-        x = bm.where(syn_sps,x-u*self.x,x)
-        g = bm.where(syn_sps,g+self.g_max*u*self.x,g)
-        
-        self.u.value = u
-        self.x.value = x
-        self.g.value = g 
+class STD(bp.synapses.SynSTP):
+
+  def __init__(
+      self,
+      tau: float = 200.,
+      U: float = 0.07,
+      method: str = 'exp_auto',
+      name: str = None
+  ):
+    super(STD, self).__init__(name=name)
+
+    # parameters
+    is_float(tau, 'tau', min_bound=0, )
+    is_float(U, 'U', min_bound=0, )
+    self.tau = tau
+    self.U = U
+    self.method = method
+
+    # integral function
+    self.integral = bp.odeint(lambda x, t: (1 - x) / self.tau, method=self.method)
+
+
+  def register_master(self, master):
+    super(STD, self).register_master(master)
+
+    # variables
+    self.x = variable(jnp.ones, self.master.mode, self.master.pre.num)
+
+  def reset_state(self, batch_size=None):
+    self.x.value = variable(jnp.ones, batch_size, self.master.pre.num)
+
+  def update(self, tdi, pre_spike):
+    x = self.integral(self.x.value, tdi['t'], tdi['dt'])
+    self.x.value = jnp.where(pre_spike, x - self.U * self.x, x)
+
+  def filter(self, g):
+    if jnp.shape(g) != self.x.shape:
+      raise ValueError('Shape does not match.')
+    return g * self.x

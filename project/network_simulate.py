@@ -48,7 +48,7 @@ pre2post_PC[1]=np.array(pre2post_PC_tmp['pre_pt'])
 
 freq=rate_MF
 mode="asym"
-mode_stp=0
+mode_stp=1
 seed=1234
 dur=1000 ## ms
 
@@ -58,7 +58,6 @@ post_id=pre2post_PC[0]
 conn=bp.conn.IJConn(i=pre_id,j=post_id)
 conn = conn(pre_size=n_PC, post_size=n_PC)
 ts,PC_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,mode_stp=mode_stp,seed=seed)
-
 # to plot
 fig,gs=plt.subplots()
 t_start=0.

@@ -40,6 +40,17 @@ def save_weight(weight, file_name):
     np.save(file_name,arr)
     return None
 
+def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
+    matrix=np.zeros((n_pre,n_post))
+    for id_vec in range(len(pre2post[1])-1):
+        start=pre2post[1][id_vec]
+        end=pre2post[1][id_vec+1]
+        post_ides=pre2post[0][start:end]
+        matrix[id_vec][post_ides]=weight[start:end]
+
+    np.savetxt(file_name,matrix)
+    return None
+
 def read_spike_train(file_path):
     with open(file_path, "rb") as file:
         # Load the data from the file

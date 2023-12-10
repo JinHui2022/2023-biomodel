@@ -12,11 +12,23 @@ import numpy as np
 import brainpy as bp
 import brainpy.math as bm
 import matplotlib.pyplot as plt
+from plots import plot_weight_matrix
 from classes import STDP
 from parameter import *
 from file_management import read_spike_train, save_pre2post, save_prepost_weight
 from wmx_modify import *
 from tools import get_wmx_preid
+
+def get_wmx_preid(n_pre,n_post,pre2post,weight):
+    matrix=np.zeros((n_pre,n_post))
+    pre_id=np.zeros_like(pre2post[0])
+    for id_vec in range(len(pre2post[1])-1):
+        start=pre2post[1][id_vec]
+        end=pre2post[1][id_vec+1]
+        post_ides=pre2post[0][start:end]
+        matrix[id_vec][post_ides]=weight[start:end]
+        pre_id[start:end]=id_vec
+    return matrix,pre_id
 
 def load_spike_trains(file_path):
     """
@@ -56,7 +68,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
 
     # construct the neuron network
     pre=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
-    post=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
+    post=pre
     conn=bp.conn.FixedProb(prob=connection_prob_PC, include_self=False, seed=42)
     syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am,wmax=wmax)
     syn.w*=w_init

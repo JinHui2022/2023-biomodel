@@ -4,10 +4,8 @@
 import numpy as np
 import brainpy as bp
 import matplotlib.pyplot as plt
-from file_management import read_pre2post, read_weight
 from classes import ca3simu
 from parameter import *
-from tools import get_wmx_preid
 
 # build the network
 def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,seed):
@@ -24,16 +22,16 @@ def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,seed):
     return ts, PC_spikes
 
 # input file name
-header=".\data\asym_"
-pre2post_file="pre2post.json"
-weight_file="weight.npy"
+header=".\data\\asym_"
+weight_file='weight.npy'
+preid_file='pre_id.npy'
+postid_file='post_id.npy'
 
 # get the pre2post and weight 
-pre2post_PC_tmp=read_pre2post(header+pre2post_file)
-weight_PC=read_weight(header+weight_file)
-pre2post_PC=np.zeros((2,), dtype=np.object_)
-pre2post_PC[0]=np.array(pre2post_PC_tmp['post_id'])
-pre2post_PC[1]=np.array(pre2post_PC_tmp['pre_pt'])
+weight_PC=np.load(header+weight_file)
+pre_id=np.load(header+preid_file)
+post_id=np.load(header+postid_file)
+weight_PC/=4 # rescale
 
 freq=rate_MF
 mode="asym"
@@ -41,8 +39,8 @@ seed=1234
 dur=5000 ## ms
 
 # to run
-wmx_PC,pre_id=get_wmx_preid(n_pre=n_PC,n_post=n_PC,pre2post=pre2post_PC,weight=weight_PC)
-post_id=pre2post_PC[0]
+wmx_PC=np.zeros((n_PC,n_PC))
+wmx_PC[pre_id,post_id]=weight_PC
 conn=bp.conn.IJConn(i=pre_id,j=post_id)
 conn = conn(pre_size=n_PC, post_size=n_PC)
 ts,PC_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,seed=seed)

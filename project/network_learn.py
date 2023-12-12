@@ -7,6 +7,7 @@ Loads in hippocampal like spike train (produced by `generate_spike_trains.py`) a
 updated to produce symmetric STDP curve as reported in Mishra et al. 2016 - 10.1038/ncomms11552
 """
 
+import sys
 import numpy as np
 import brainpy as bp
 import brainpy.math as bm
@@ -36,14 +37,14 @@ def load_spike_trains(file_path):
 def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     bm.set_dt(0.1)
     # STDP parameter
-    if mode==0: ## asym
+    if mode=="asym": 
         taup=stdp['taup'][0]
         taum=stdp['taum'][0]
         Ap=stdp['Ap'][0]
         Am=stdp['Am'][0]
         wmax=stdp['wmax'][0]
         scale_factor=stdp['scale_factor'][0]
-    elif mode==1:
+    elif mode=="sym":
         taup=stdp['taup'][1]
         taum=stdp['taum'][1]
         Ap=stdp['Ap'][1]
@@ -72,23 +73,25 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     return syn.w,syn.pre2post
 
 if __name__=="__main__":
-    mode=0 
-    dur=5000
+    try:
+        STDP_mode = sys.argv[1]
+    except:
+        STDP_mode = "asym"
+    assert STDP_mode in ["sym", "asym"] 
+    dur=1000 ## ms
     spike_train_file=".\data\spike_trains_0.5_linear.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=dur,mode=mode)
+    weight,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=dur,mode=STDP_mode)
     
     ## save the result
-    header=".\\data\\asym_"
+    header=".\\data\\sym_"
     file_paths=["pre_id.npy","post_id.npy","weight.npy"]
     pre2post_file='pre2post.json'
     save_pre2post(pre2post,file_name=pre2post_file)
 
     ## wmx need necessory modification
     wmx,_=get_wmx_preid(n_pre=n_PC,n_post=n_PC,pre2post=pre2post,weight=weight)
-    np.multiply(wmx,1e9) # unit: S->nS
-    np.multiply(wmx,4e2) # rescale
-    wmx_PC=erase(wmx,start_source=4000, end_target=4000,refsrc_start=2000,refsrc_end=4000,reftag_start=0,reftag_end=1000)
-    wmx_PC=normalize_wmx(wmx_PC,sigma=300)
+    wmx=np.multiply(wmx,1e9) # unit: S->nS
+    wmx_PC=normalize_wmx(wmx,sigma=300)
 
     save_prepost_weight(wmx=wmx_PC,file_name=[header+fpth for fpth in file_paths])

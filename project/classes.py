@@ -7,7 +7,7 @@ from brainpy.synapses import DualExponential
 from parameter import *
 
 class STDP(bp.synapses.TwoEndConn):
-    def __init__(self,pre,post,conn,tau_s,tau_t,A1,A2,wmax,delay_step=0,method='exp_auto',**kwargs):
+    def __init__(self,pre,post,conn,tau_s,tau_t,A1,A2,method='exp_auto',**kwargs):
         super(STDP, self).__init__(pre=pre,post=post,conn=conn,**kwargs)
 
         # initialize parameters
@@ -15,8 +15,6 @@ class STDP(bp.synapses.TwoEndConn):
         self.tau_t=tau_t
         self.A1=A1 # Apre
         self.A2=A2 # Apost
-        self.delay_step=delay_step
-        self.wmax=wmax
 
         # fetch pre_idexes and post_idexes
         self.pre_ids,self.post_ids,self.pre2post=self.conn.require('pre_ids','post_ids','pre2post')
@@ -26,9 +24,6 @@ class STDP(bp.synapses.TwoEndConn):
         self.Apre=bm.Variable(bm.zeros(num))
         self.Apost=bm.Variable(bm.zeros(num))
         self.w=bm.Variable(bm.ones(num))
-
-        # define a delay processor
-        self.delay=bm.LengthDelay(self.pre.spike,delay_step)
 
         # functions
         self.integral=bp.odeint(method=method,f=self.derivative)

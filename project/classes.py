@@ -59,37 +59,6 @@ class STDP(bp.synapses.TwoEndConn):
         self.Apre.value=Apre
         self.Apost.value=Apost
 
-# class PoissonStim(bp.NeuGroup):
-#     ## neurons group can produce Poisson stimulation
-#     def __init__(self, size, ferq_mean, freq_var, t_interval, **kwargs):
-#         super(PoissonStim, self).__init__(size=size,**kwargs)
-
-#         # to initialize parameters
-#         self.freq_mean=ferq_mean
-#         self.freq_var=freq_var
-#         self.t_interval=t_interval
-
-#         # tp initialize variables
-#         self.freq=bm.Variable(bm.zeros(1))
-#         self.freq_t_last_change=bm.Variable(bm.ones(1)*-1e7)
-#         self.spike=bm.Variable(bm.zeros(self.num, dtype=bool))
-#         self.rng=bm.random.RandomState()
-
-#     def update(self):
-#         t=bp.share.load('t')
-#         in_interval=bm.logical_and(pre_stimulus_period<t,t<pre_stimulus_period+stimulus_period)
-#         freq=bm.where(in_interval, self.freq[0],0.)
-
-#         # judge whether to change the value of freq
-#         change=bm.logical_and(in_interval,(t-self.freq_t_last_change[0])>=self.t_interval)
-
-#         # update
-#         self.freq[:]=bm.where(change, self.rng.normal(self.freq_mean,self.freq_var),freq)
-#         self.freq_t_last_change[:]=bm.where(change,t,self.freq_t_last_change[0])
-
-#         # produce spike
-#         self.spike.value=self.rng.random(self.num)<self.freq[0]*t/1000.
-
 class ca3simu(bp.Network):
     def __init__(self, freq, conn_PC_E, wmx_PC_E, mode, seed):
         super(ca3simu, self).__init__()

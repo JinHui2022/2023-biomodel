@@ -62,7 +62,6 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     # to run
     runner=bp.DSRunner(
         net,
-        # monitors=['syn.w'],
     )
     runner.run(dur)    
     syn.w *= scale_factor  # quick and dirty additional scaling! (in an ideal world the STDP parameters should be changed to include this scaling...)
@@ -72,7 +71,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
 if __name__=="__main__":
     spike_train_file="spike_trains.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=400*1000,mode=0)
+    weight_asym,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=1*1000,mode=0)
     
     ## save the result
     header="asym_"

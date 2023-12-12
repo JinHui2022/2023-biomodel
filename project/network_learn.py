@@ -13,7 +13,9 @@ import brainpy.math as bm
 import matplotlib.pyplot as plt
 from classes import STDP
 from parameter import *
-from file_management import read_spike_train, save_pre2post, save_weight
+from file_management import read_spike_train, save_pre2post, save_prepost_weight
+from wmx_modify import *
+from tools import get_wmx_preid
 
 def load_spike_trains(file_path):
     """
@@ -32,7 +34,7 @@ def load_spike_trains(file_path):
     return spiking_neurons, spike_times
 
 def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
-    bm.set_dt(0.5)
+    bm.set_dt(0.1)
     # STDP parameter
     if mode==0: ## asym
         taup=stdp['taup'][0]
@@ -65,17 +67,28 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     )
     runner.run(dur)    
     syn.w *= scale_factor  # quick and dirty additional scaling! (in an ideal world the STDP parameters should be changed to include this scaling...)
-
+    syn.w.value=bm.where(syn.w<0,0,syn.w)
+    syn.w.value=bm.where(syn.w>wmax,wmax,syn.w)
     return syn.w,syn.pre2post
 
 if __name__=="__main__":
-    spike_train_file="spike_trains.npz"
+    mode=0 
+    dur=5000
+    spike_train_file=".\data\spike_trains_0.5_linear.npz"
     spiking_neurons, spiking_times=load_spike_trains(file_path=spike_train_file)
-    weight_asym,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=1*1000,mode=0)
+    weight,pre2post=run_STDP(spiking_neurons=spiking_neurons,spiking_time=spiking_times,dur=dur,mode=mode)
     
     ## save the result
-    header="asym_"
-    weight_file="weight.npy"
+    header=".\\data\\asym_"
+    file_paths=["pre_id.npy","post_id.npy","weight.npy"]
     pre2post_file='pre2post.json'
-    save_weight(weight_asym,header+weight_file)
-    save_pre2post(pre2post,file_name=header+pre2post_file)
+    save_pre2post(pre2post,file_name=pre2post_file)
+
+    ## wmx need necessory modification
+    wmx,_=get_wmx_preid(n_pre=n_PC,n_post=n_PC,pre2post=pre2post,weight=weight)
+    np.multiply(wmx,1e9) # unit: S->nS
+    np.multiply(wmx,4e2) # rescale
+    wmx_PC=erase(wmx,start_source=4000, end_target=4000,refsrc_start=2000,refsrc_end=4000,reftag_start=0,reftag_end=1000)
+    wmx_PC=normalize_wmx(wmx_PC,sigma=300)
+
+    save_prepost_weight(wmx=wmx_PC,file_name=[header+fpth for fpth in file_paths])

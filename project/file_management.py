@@ -26,11 +26,6 @@ def save_spike_trains(spike_trains, file_name):
         pickle.dump(spike_trains, file)
     return None
 
-def save_conn_matrix(conn_matrix, file_name):
-    matrix=np.array(conn_matrix)
-    np.savetxt(file_name,matrix)
-    return None
-
 def save_pre2post(pre2post, file_name):
     dict_pre2post={
         "post_id":np.array(pre2post[0]).tolist(),
@@ -56,18 +51,11 @@ def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
     np.savetxt(file_name,matrix)
     return None
 
-def read_place_field(file_path):
-    return None
-
 def read_spike_train(file_path):
     with open(file_path, "rb") as file:
         # Load the data from the file
         data = pickle.load(file)
     return data
-
-def read_conn_matrix(file_name):
-    matrix = np.loadtxt(file_name)
-    return matrix
 
 def read_pre2post(file_name):
     with open(file_name, 'r') as file:
@@ -78,6 +66,13 @@ def read_weight(file_name):
     weight=np.load(file_name)
     return weight
 
-def read_weight_matrix(file_name):
-    matrix=np.loadtxt(file_name)
-    return matrix
+def save_prepost_weight(wmx,file_name):
+    nonzero_indices = np.nonzero(wmx)
+    pre_id = nonzero_indices[0]
+    post_id = nonzero_indices[1]
+    weight = wmx[nonzero_indices]
+    np.save(file_name[0],pre_id)
+    np.save(file_name[1],post_id)
+    np.save(file_name[2],weight)
+    
+    return None

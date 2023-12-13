@@ -2,12 +2,14 @@
 
 import os
 import numpy as np
+import brainpy as bp
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from matplotlib import rcParams
 from matplotlib import cm
 from parameter import *
-config = {"axes.titlesize":"14", "axes.labelsize":"15", "axes.labelweight":"medium"}
+config = {"axes.titlesize":"14", "axes.labelsize":"14", "axes.labelweight":"medium"}
 rcParams.update(config)
 rcParams['font.family'] = 'serif'
 rcParams['font.serif'] = ['Times New Roman']
@@ -90,28 +92,27 @@ def plot_STDP_rule(taup, taum, Ap, Am):
         fig.savefig(os.path.join(fig_dir, "Asymmetrc STDP rule.png"), dpi=200)
     
 
-def plot_weight_matrix(weight_matrix, title):
+def plot_weight_matrix(weight_matrix, name):
     """
     Saves figure with the weight matrix
     :param weight_matrix: numpy array representing the weight matrix
-    :param title: title and name of saved img
+    :param name: name of saved img
     """
 
     fig = plt.figure()
     i = plt.imshow(weight_matrix, cmap="GnBu", origin="lower", interpolation="nearest")
     fig.colorbar(i)
-    plt.title(title)
     plt.axis([0, len(weight_matrix), 0, len(weight_matrix)])
     plt.xlabel("Target neuron")
     plt.ylabel("Source neuron")
-    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
+    fig.savefig(os.path.join(fig_dir, "%s.png" % name), dpi=200)
     
-def plot_weight_matrix_avg(weight_matrix, n_pops, title):
+def plot_weight_matrix_avg(weight_matrix, n_pops, name):
     """
     Saves figure with the weight matrix
     :param weight_matrix: numpy array representing the weight matrix
     :param n_pops: number of populations
-    :param title: title and name of saved img
+    :param name: name of saved img
     """
 
     assert len(weight_matrix) % n_pops == 0
@@ -126,29 +127,38 @@ def plot_weight_matrix_avg(weight_matrix, n_pops, title):
     fig = plt.figure()
     i = plt.imshow(mean_wmx, cmap="GnBu", origin="lower", interpolation="nearest")
     fig.colorbar(i)
-    plt.title(title)
     plt.axis([0, len(mean_wmx), 0, len(mean_wmx)])
     plt.xlabel("Target neuron")
     plt.ylabel("Source neuron")
-    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
+    fig.savefig(os.path.join(fig_dir, "%s.png" % name), dpi=200)
 
-def plot_raster(spike_times, spike_neurons, title):
+def plot_raster(spike_times, spike_neurons, name):
     sp = np.asarray(spike_neurons)
     ts = np.asarray(spike_times)
+    xlen = len(ts)/10
 
     # get index and time
     elements = np.where(sp > 0.)
     index = elements[1]
     time = ts[elements[0]]
-    color = index
 
+    fig=plt.figure(figsize=(16, 8))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])
     # plot raster
-    fig=plt.figure()
-    plt.scatter(time, index, c=color, cmap="cividis", marker=".", s=12)
-    plt.xlabel("Time(ms)")
-    plt.ylabel("Neuron ID")
-    plt.title(title)
-    fig.savefig(os.path.join(fig_dir, "%s.png" % title), dpi=200)
+    ax1 = fig.add_subplot(gs[0])
+    ax1.scatter(time, index, c=index, cmap="cividis", marker=".", s=4)
+    ax1.set_xlim(0, xlen)
+    ax1.set_ylabel("Neuron ID")
+    
+    # plot firing rate
+    rate = bp.measure.firing_rate(spike_neurons, 10.)
+    ax2 = fig.add_subplot(gs[1])
+    ax2.fill_between(np.arange(0, xlen, 0.1), rate, 0, color="cornflowerblue")
+    ax2.plot(np.arange(0, xlen, 0.1), rate, color="cornflowerblue")
+    ax2.set_xlim(0, xlen)
+    ax2.set_xlabel("Time (ms)")
+    ax2.set_ylabel("Rate (Hz)")
+    fig.savefig(os.path.join(fig_dir, "%s.png" % name), dpi=200)
 
 def plot_spike_events(event_time, ax):
     return None

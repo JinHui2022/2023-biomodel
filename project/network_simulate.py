@@ -36,8 +36,9 @@ weight_PC/=4 # rescale
 
 freq=rate_MF
 mode="asym"
+mode_stp=1
 seed=1234
-dur=2000 ## ms
+dur=5000 ## ms
 
 # to run
 wmx_PC=np.zeros((n_PC,n_PC))

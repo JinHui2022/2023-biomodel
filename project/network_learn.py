@@ -70,7 +70,7 @@ def run_STDP(spiking_neurons, spiking_time, dur, mode, **kwargs):
     pre=bp.neurons.SpikeTimeGroup(size=n_PC, times=spiking_time, indices=spiking_neurons)
     post=pre
     conn=bp.conn.FixedProb(prob=connection_prob_PC, include_self=False, seed=42)
-    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am,wmax=wmax)
+    syn=STDP(pre,post,conn,tau_s=taup,tau_t=taum,A1=Ap,A2=Am)
     syn.w*=w_init
     net=bp.Network(pre=pre,syn=syn,post=post)
 

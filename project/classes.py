@@ -96,10 +96,10 @@ class ca3simu(bp.Network):
         ## PC -> PC
         ## choose if use STP synapses
         if mode_stp == 0:
-            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
+            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=norm_PC_E*w_PC_E,tau_decay=decay_PC_E,tau_rise=rise_PC_E,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))
         else:
-            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=z*w_PC_E,stp = STD(),tau_decay=decay_PC_E,tau_rise=rise_PC_E,
+            self.PC_E=DualExponential(PCs,PCs,conn_PC_E,g_max=norm_PC_E*w_PC_E,stp = STD(),tau_decay=decay_PC_E,tau_rise=rise_PC_E,
                                    delay_step=delay_PC_E,output=bp.synouts.COBA(Erev_E))        
         ## BC -> PC
         conn_PC_I=bp.conn.FixedProb(prob=connection_prob_BC,include_self=False,seed=42)
@@ -153,7 +153,9 @@ class STD(bp.synapses.SynSTP):
     self.x.value = variable(jnp.ones, batch_size, self.master.pre.num)
 
   def update(self, tdi, pre_spike):
-    x = self.integral(self.x.value, tdi['t'], tdi['dt'])
+    t=bp.share.load('t')
+    dt=bp.share.load('dt')
+    x = self.integral(self.x.value, t, dt)
     self.x.value = jnp.where(pre_spike, x - self.U * self.x, x)
 
   def filter(self, g):

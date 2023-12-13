@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib import cm
 from parameter import *
-config = {"axes.titlesize":"20", "axes.labelsize":"15", "axes.labelweight":"medium"}
+config = {"axes.titlesize":"14", "axes.labelsize":"15", "axes.labelweight":"medium"}
 rcParams.update(config)
+rcParams['font.family'] = 'serif'
+rcParams['font.serif'] = ['Times New Roman']
 
 fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "result")
 if not os.path.exists(fig_dir):

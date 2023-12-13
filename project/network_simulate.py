@@ -1,6 +1,7 @@
 ## using the weight matrix produced in network_learn.py to construct a neuron
 ## network to simulate the SWRs 
 
+import sys
 import numpy as np
 import brainpy as bp
 import matplotlib.pyplot as plt
@@ -22,35 +23,35 @@ def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,mode_stp,seed):
 
     return ts, PC_spikes,MF_spikes
 
-# input file name
-header=".\data\\asym_"
-weight_file='weight.npy'
-preid_file='pre_id.npy'
-postid_file='post_id.npy'
+if __name__=="__main__":
+    # input file name
+    mode_sym=sys.argv[1]
+    mode_stp=sys.argv[2]
 
-# get the pre2post and weight 
-weight_PC=np.load(header+weight_file)
-pre_id=np.load(header+preid_file)
-post_id=np.load(header+postid_file)
-weight_PC/=4 # rescale
+    header=".\data\\"+mode_sym
+    weight_file='_weight.npy'
+    preid_file='_pre_id.npy'
+    postid_file='_post_id.npy'
 
-freq=rate_MF
-mode="asym"
-mode_stp=1
-seed=1234
-dur=5000 ## ms
+    # get the pre2post and weight 
+    weight_PC=np.load(header+weight_file)
+    pre_id=np.load(header+preid_file)
+    post_id=np.load(header+postid_file)
+    weight_PC/=4 # rescale
 
-# to run
-wmx_PC=np.zeros((n_PC,n_PC))
-wmx_PC[pre_id,post_id]=weight_PC
-conn=bp.conn.IJConn(i=pre_id,j=post_id)
-conn = conn(pre_size=n_PC, post_size=n_PC)
-ts,PC_spikes,MF_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode,seed=seed)
+    freq=rate_MF
+    seed=1234
+    dur=3000 ## ms
 
-# to plot
-fig,gs=plt.subplots()
+    # to run
+    wmx_PC=np.zeros((n_PC,n_PC))
+    wmx_PC[pre_id,post_id]=weight_PC
+    conn=bp.conn.IJConn(i=pre_id,j=post_id)
+    conn = conn(pre_size=n_PC, post_size=n_PC)
+    ts,PC_spikes,MF_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode_sym,seed=seed,mode_stp=mode_stp)
 
-bp.visualize.raster_plot(ts,PC_spikes,markersize=0.5)
-plt.title('just for test')
-plt.ylabel("Neuron Index")
-plt.show()
+    fig,gs=plt.subplots()
+    bp.visualize.raster_plot(ts,PC_spikes,markersize=0.5)
+    plt.ylabel('Neuron Index')
+    plt.title('test STD')
+    plt.show()

@@ -131,6 +131,29 @@ def plot_weight_matrix_avg(weight_matrix, n_pops, name):
     plt.xlabel("Target neuron")
     plt.ylabel("Source neuron")
     fig.savefig(os.path.join(fig_dir, "%s.png" % name), dpi=200)
+    
+def plot_w_distr(wmx_nonzero, bins, name):
+    """
+    Saves figure with the distribution of the weights
+    :param wmx_nonzero: numpy array representing the weight matrix
+    :param bins: number of equal-width bins in the range
+    :param name: name of saved img
+    """
+
+    log10wmx_nonzero = np.log10(wmx_nonzero)
+
+    fig = plt.figure(figsize=(10, 8))
+
+    ax = fig.add_subplot(2, 1, 1)
+    ax.hist(wmx_nonzero, bins=bins, log=True, edgecolor="black")
+    ax.set_xlabel("Synaptic weights (nS)")
+    ax.set_ylabel("Count")
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    ax2.hist(log10wmx_nonzero, bins=bins, log=True, color="red", edgecolor="black")
+    ax2.set_xlabel("log10(synaptic weights(nS))")
+    ax2.set_ylabel("Count")
+    fig.savefig(os.path.join(fig_dir, "%s.png" % name), dpi=200)
 
 def plot_raster(spike_times, spike_neurons, name):
     sp = np.asarray(spike_neurons)

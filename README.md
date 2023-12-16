@@ -7,15 +7,20 @@
 ### project
 模型建立有关函数主要为下面三个函数：
 * generate_spike_trains.py：让模拟小鼠通过通道，根据位置细胞和非位置的兴奋规律，模拟出两类PC细胞（位置和非位置）平均状态下的spike train
-* network_learn：利用spike train，基于给定的STDP规则，进行神经元突触权重矩阵的学习
-* network_simulate：通过突触权重矩阵，模拟出神经元在小鼠通过通道后，神经元在静息状态下随时间的兴奋情况
+* network_learn.py：利用spike train，基于给定的STDP规则，进行神经元突触权重矩阵的学习
+* network_simulate.py：通过突触权重矩阵，模拟出神经元在小鼠通过通道后，神经元在静息状态下随时间的兴奋情况
 
 模型分析有关的函数大致有：
 
-aba aba
+* wmx_modify.py：提供了本项目进行权重矩阵调整有关的函数
 
 此外，还有部分辅助文件：
 * plots.py：提供本项目所有作图有关的支持
 * parameter.py：存储本项目使用的可以泛化的参数
 * classes.py：存储本项目使用的各种类
 * file_management：负责数据的存储和文件的读取
+
+## 项目特色
+本项目使用全新的库函数brainpy编写了有关程序，代码更加浅显易懂，也便于使用者进行参数的调整。
+
+此外对于原论文为了解决的replay现象一旦发生必然到头的现象，我们在查阅了文献后，发现在网络模拟中加入STD现象可以帮助replay提前终止，从而与真实的神经网络行为更为接近。

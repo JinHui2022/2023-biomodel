@@ -97,8 +97,8 @@ rate_MF = 15.0 # Hz  # mossy fiber input freq
 z=1. # nS =g_max
 ## STDP parameters(p: pre; m: post)
 stdp={
-    'taup': [20., 62.5], ## ms
-    'taum': [20., 62.5], ## ms
+    'taup': [2., .7], ## ms
+    'taum': [2., .7], ## ms
     'Ap': [0.01, 4e-3],
     'Am': [-0.01, 4e-3],
     'wmax': [4e-8, 2e-8], ## S

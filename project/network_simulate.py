@@ -50,4 +50,4 @@ if __name__=="__main__":
     conn = conn(pre_size=n_PC, post_size=n_PC)
     ts,PC_spikes,MF_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode_sym,seed=seed,mode_stp=mode_stp)
 
-    plot_raster(ts,PC_spikes,name="for test1")
+    plot_raster(ts,PC_spikes,name=mode_sym+"_simulate")

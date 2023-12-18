@@ -4,9 +4,9 @@
 import sys
 import numpy as np
 import brainpy as bp
-import matplotlib.pyplot as plt
 from classes import ca3simu
 from parameter import *
+from plots import plot_raster
 
 # build the network
 def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,mode_stp,seed):
@@ -26,7 +26,7 @@ def run_ca3simu(dur,freq,conn_PC,weight_matrix_PC,mode,mode_stp,seed):
 if __name__=="__main__":
     # input file name
     mode_sym=sys.argv[1]
-    mode_stp=sys.argv[2]
+    mode_stp=int(sys.argv[2])
 
     header=".\data\\"+mode_sym
     weight_file='_weight.npy'
@@ -37,7 +37,7 @@ if __name__=="__main__":
     weight_PC=np.load(header+weight_file)
     pre_id=np.load(header+preid_file)
     post_id=np.load(header+postid_file)
-    weight_PC/=4 # rescale
+    weight_PC*=0.283 # rescale
 
     freq=rate_MF
     seed=1234
@@ -50,8 +50,4 @@ if __name__=="__main__":
     conn = conn(pre_size=n_PC, post_size=n_PC)
     ts,PC_spikes,MF_spikes=run_ca3simu(dur=dur,freq=freq,conn_PC=conn,weight_matrix_PC=wmx_PC,mode=mode_sym,seed=seed,mode_stp=mode_stp)
 
-    fig,gs=plt.subplots()
-    bp.visualize.raster_plot(ts,PC_spikes,markersize=0.5)
-    plt.ylabel('Neuron Index')
-    plt.title('test STD')
-    plt.show()
+    plot_raster(ts,PC_spikes,name="for test1")

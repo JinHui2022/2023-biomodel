@@ -6,7 +6,7 @@ import pickle
 import json
 import os
 
-fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "result")
+fig_dir = os.path.join(os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-2]), "data")
 if not os.path.exists(fig_dir):
     os.mkdir(fig_dir)
 
@@ -22,7 +22,8 @@ def save_place_field(dictionary,file_name):
     return None
 
 def save_spike_trains(spike_trains, file_name):
-    with open(file_name, 'wb') as file:
+    file_path = generate_file_path(file_name)
+    with open(file_path, 'wb') as file:
         pickle.dump(spike_trains, file)
     return None
 
@@ -31,13 +32,15 @@ def save_pre2post(pre2post, file_name):
         "post_id":np.array(pre2post[0]).tolist(),
         "pre_pt":np.array(pre2post[1]).tolist()
     }
-    with open(file_name,'w') as f:
+    file_path = generate_file_path(file_name)
+    with open(file_path,'w') as f:
         json.dump(dict_pre2post,f)
     return None
 
 def save_weight(weight, file_name):
     arr=np.array(weight)
-    np.save(file_name,arr)
+    file_path = generate_file_path(file_name)
+    np.save(file_path,arr)
     return None
 
 def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
@@ -47,23 +50,26 @@ def save_weight_matrix(n_pre, n_post, pre2post, weight, file_name):
         end=pre2post[1][id_vec+1]
         post_ides=pre2post[0][start:end]
         matrix[id_vec][post_ides]=weight[start:end]
-
-    np.savetxt(file_name,matrix)
+    file_path = generate_file_path(file_name)
+    np.savetxt(file_path,matrix)
     return None
 
-def read_spike_train(file_path):
+def read_spike_train(file_name):
+    file_path = generate_file_path(file_name)
     with open(file_path, "rb") as file:
         # Load the data from the file
         data = pickle.load(file)
     return data
 
 def read_pre2post(file_name):
-    with open(file_name, 'r') as file:
+    file_path = generate_file_path(file_name)
+    with open(file_path, 'r') as file:
         pre2post = json.load(file)
     return pre2post
 
 def read_weight(file_name):
-    weight=np.load(file_name)
+    file_path = generate_file_path(file_name)
+    weight=np.load(file_path)
     return weight
 
 def save_prepost_weight(wmx,file_name):
@@ -71,8 +77,9 @@ def save_prepost_weight(wmx,file_name):
     pre_id = nonzero_indices[0]
     post_id = nonzero_indices[1]
     weight = wmx[nonzero_indices]
-    np.save(file_name[0],pre_id)
-    np.save(file_name[1],post_id)
-    np.save(file_name[2],weight)
+    file_path = generate_file_path(file_name)
+    np.save(file_path[0],pre_id)
+    np.save(file_path[1],post_id)
+    np.save(file_path[2],weight)
     
     return None
